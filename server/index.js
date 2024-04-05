@@ -21,9 +21,6 @@ app.use('/api/users',userRoute);
 app.use('/api/products', productRoute);
 app.use('/api/orders',paymentRoute);
 
-app.get('/',(req,res)=>{
-    res.send({'HELLO'});
-}
 
 const port = process.env.PORT || 5000;
 app.listen(port, ()=>{
