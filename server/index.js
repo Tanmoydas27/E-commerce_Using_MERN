@@ -12,7 +12,7 @@ const productRoute = require('./routes/productRoutes.js');
 const paymentRoute = require('./routes/paymentRoute.js');
 app.use(bodyParser.json());
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: "https://e-commerce-using-mern-six.vercel.app",
     methods: 'GET, POST, PUT,PATCH, DELETE',
     credentials: true,
 }));
@@ -21,6 +21,9 @@ app.use('/api/users',userRoute);
 app.use('/api/products', productRoute);
 app.use('/api/orders',paymentRoute);
 
+app.get('/',(req,res)=>{
+    res.json("Server Active");
+});
 
 const port = process.env.PORT || 5000;
 app.listen(port, ()=>{
