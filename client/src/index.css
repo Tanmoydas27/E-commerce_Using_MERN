@@ -38,3 +38,20 @@ table{
 i{
     font-size: 20px !important;
 }
+
+.buynowhome{
+    height: 30px !important;
+    background-color: #003cb3;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    padding: 5px;
+    cursor: pointer;
+    padding-right: 8px;
+}
+
+.buynowhome:hover{
+    background-color:#092b6e ;
+    color: white;
+
+}

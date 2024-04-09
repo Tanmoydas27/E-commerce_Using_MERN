@@ -140,7 +140,7 @@ export const GetCartitemById = async (id) => {
   }
 };
 
-export const UpdateCartItemById = async(id, payload)=>{
+export const UpdateCartItemById = async (id, payload) => {
   try {
     const response = await axiosinstance.patch(
       `${process.env.REACT_APP_SERVER_URL}/api/orders/update-cart-item-by-id/${id}`,
@@ -150,4 +150,38 @@ export const UpdateCartItemById = async(id, payload)=>{
   } catch (error) {
     return error.message;
   }
-}
+};
+
+export const AddToTempCart = async (payload) => {
+  try {
+    const response = await axiosinstance.post(
+      `${process.env.REACT_APP_SERVER_URL}/api/orders/add-temp-cart`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+export const GetTempCartById = async (id) => {
+  try {
+    const response = await axiosinstance.get(
+      `${process.env.REACT_APP_SERVER_URL}/api/orders/get-temp-cart-by-id/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+export const DeleteTempCartById = async (id) => {
+  try {
+    const response = await axiosinstance.delete(
+      `${process.env.REACT_APP_SERVER_URL}/api/orders/delete-temp-by-id/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    return error.message;
+  }
+};

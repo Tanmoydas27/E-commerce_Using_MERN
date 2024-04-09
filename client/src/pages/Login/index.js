@@ -22,6 +22,7 @@ const Login = () => {
     try {
       dispatch(SetLoader(true));
       const response = await LoginUser(values);
+      console.log(response);
       dispatch(SetLoader(false));
       if (response.success) {
         message.success(response.message);

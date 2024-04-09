@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { message } from "antd";
+import { Button, message } from "antd";
 import { SetLoader } from "../../redux/loadersSlice";
-import { GetProducts } from "../../apis/products";
+import { GetProductById, GetProducts, PlaceNewCart } from "../../apis/products";
 import Divider from "../../components/Divider";
 import { useNavigate } from "react-router-dom";
+import AdditionalForm from "./AdditionalForm";
 
 const Home = () => {
   const { user } = useSelector((state) => state.users);
   const [products, setProducts] = useState([]);
+  const [showAdditionalForm, setShowAdditionalForm] = useState(false);
+  const [cartItem, setCartItem] = useState(null);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -27,6 +30,33 @@ const Home = () => {
     }
   };
 
+  const buyNow = async (id) => {
+    dispatch(SetLoader(true));
+    try {
+      const response = await GetProductById(id);
+      dispatch(SetLoader(false));
+      if (response.success) {
+        const data = {
+          product: response.data._id,
+          seller: response.data.seller._id,
+          buyer: user._id,
+          quantity: 1,
+          paymentAmount: response.data.price,
+
+          status: "pending",
+        };
+        const Item = await PlaceNewCart(data);
+        if (Item.success) {
+          setCartItem(Item.data);
+        }
+        setShowAdditionalForm(true);
+      }
+    } catch (error) {
+      dispatch(SetLoader(false));
+      message.error(error.message);
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -35,28 +65,49 @@ const Home = () => {
       <div className="grid grid-cols-5 gap-6">
         {products.map((product) => {
           return (
-            <div
-              className="border border-gray-300 rounded border-solid flex flex-col gap-5 pb-2 cursor-pointer"
-              key={product._id}
-              onClick={() => navigate(`/product/${product._id}`)}
-            >
-              <img
-                src={product.images[0]}
-                className="w-full h-40 object-contain"
-              />
+            <>
+              <div className="border border-gray-300 rounded border-solid flex flex-col gap-5 pb-2 cursor-pointer">
+                <div
+                  key={product._id}
+                  onClick={() => navigate(`/product/${product._id}`)}
+                >
+                  <img
+                    src={product.images[0]}
+                    className="w-full h-40 object-contain"
+                  />
 
-              <div className="px-2 flex flex-col gap-1">
-                <h1 className="text-lg font-semibold">{product.name}</h1>
-                <p className="text-sm">{product.description}</p>
+                  <div className="px-2 flex flex-col gap-1">
+                    <h1 className="text-lg font-semibold">{product.name}</h1>
+                    <p className="text-sm">{product.description}</p>
+                  </div>
+                </div>
                 <Divider />
-                <span className="text-xl font-semibold text-green-700">
-                  RS {product.price}
-                </span>
+                <div className="flex justify-between -mt-3 cursor-default">
+                  <span className="text-xl font-semibold text-green-700 -mt-1 ml-6 ">
+                    RS {product.price}
+                  </span>
+                  <span>
+                    <button
+                      className="buynowhome text-xs mr-6 -mt-2 my-1"
+                      onClick={() => buyNow(product._id)}
+                    >
+                      <i className="ri-shopping-bag-4-line"> </i>Buy Now
+                    </button>
+                  </span>
+                </div>
               </div>
-            </div>
+            </>
           );
         })}
       </div>
+      {showAdditionalForm && (
+        <AdditionalForm
+          setShowAdditionalForm={setShowAdditionalForm}
+          showAdditionalForm={showAdditionalForm}
+          cartItem={cartItem}
+          getData={getData}
+        />
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import {
   AddToTempCart,
   DeleteCartItemById,
   DeleteTempCartById,
+  GetCartitemById,
   GetTempCartById,
   UpdateCartItemById,
 } from "../../apis/products";
@@ -26,7 +27,7 @@ const rules = [
 const AdditionalForm = ({
   showAdditionalForm,
   setShowAdditionalForm,
-  cartItems,
+  cartItem,
   getData,
 }) => {
   const dispatch = useDispatch();
@@ -38,18 +39,17 @@ const AdditionalForm = ({
   const onFinish = async (values) => {
     try {
       dispatch(SetLoader(true));
-      const updatedCartItems = await Promise.all(
-        cartItems.map(async (item) => {
-          const updatedItem = { ...item, ...values };
-          await UpdateCartItemById(item._id, updatedItem);
-          return updatedItem;
-        })
-      );
-      const tempCart = await AddToTempCart({ items: updatedCartItems });
-      setShowAdditionalForm(false);
-      getData();
-      dispatch(SetLoader(false));
-      PaymentHandel(tempCart.data._id);
+      const updatedCartItem = await UpdateCartItemById(cartItem._id, values);
+      if (updatedCartItem.success) {
+        const response = await GetCartitemById(updatedCartItem.data._id);
+        const tempCart = await AddToTempCart({ items: response.data });
+        setShowAdditionalForm(false);
+        getData();
+        dispatch(SetLoader(false));
+        PaymentHandel(tempCart.data._id);
+      } else {
+        throw new Error(updatedCartItem.message);
+      }
     } catch (error) {
       message.error(error.message);
     }
@@ -170,13 +170,13 @@ const AdditionalForm = ({
   };
 
   useEffect(() => {
-    if (cartItems) {
+    if (cartItem) {
       formRef.current.setFieldsValue({
-        address: cartItems[0].address,
-        mobile: cartItems[0].mobile,
+        address: cartItem.address,
+        mobile: cartItem.mobile,
       });
     }
-  }, [cartItems]);
+  }, [cartItem]);
 
   return (
     <Modal
@@ -199,16 +199,10 @@ const AdditionalForm = ({
     >
       <div>
         <h1 className="text-primary text-2xl text-center font-semibold uppercase mb-4">
-          Additional Details
+          Add Additional Details
         </h1>
 
         <div className="border-gray-300 border-solid rounded ">
-          <div className="flex items-center justify-center p-1 ">
-            <h1 className="text-xl">
-              Total Carts Items : {"  "}
-              {cartItems.length}
-            </h1>
-          </div>
           <div className="p-4 ">
             <Form layout="vertical" ref={formRef} onFinish={onFinish}>
               <Form.Item
@@ -239,7 +233,7 @@ const AdditionalForm = ({
                     <input
                       type="text"
                       name="mobile"
-                      value={cartItems[0].mobile}
+                      //   value={selectItem.mobile}
                       className="block p-2.5 w-full z-20 text-sm"
                       pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
                       placeholder="9000000000"

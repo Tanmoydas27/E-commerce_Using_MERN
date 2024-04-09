@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Payment = require("../models/paymentModal.js");
 const Order = require("../models/orderModal.js");
+const TempCart = require("../models/temoModel.js");
 const authMiddleware = require("../middlewares/authMiddleware.js");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
@@ -8,11 +9,12 @@ const crypto = require("crypto");
 router.post("/place-new-cart", authMiddleware, async (req, res) => {
   try {
     const newPayment = new Payment(req.body);
-    await newPayment.save();
+    const result =  await newPayment.save();
 
     res.send({
       success: true,
       message: "Order placed Successfully",
+      data:result
     });
   } catch (error) {
     res.send({
@@ -82,20 +84,22 @@ router.post("/delete-cart-item-by-id/:id", authMiddleware, async (req, res) => {
   }
 });
 
-router.patch("/update-cart-item-by-id/:id",authMiddleware, async(req,res)=>{
-  try {
-     await Payment.findByIdAndUpdate(req.params.id,req.body);
-    res.send({
-      success: true,
-      message: "Item Updated Successfully",
-    });
-  } catch (error) {
-    res.send({
-      success: false,
-      message: error.message,
-    });
+router.patch("/update-cart-item-by-id/:id",authMiddleware, async (req, res) => {
+    try {
+      const updatedItem = await Payment.findByIdAndUpdate(req.params.id, req.body);
+      res.send({
+        success: true,
+        message: "Item Updated Successfully",
+        data:updatedItem
+      });
+    } catch (error) {
+      res.send({
+        success: false,
+        message: error.message,
+      });
+    }
   }
-})
+);
 
 router.get("/get-cart-product-by-id/:id", authMiddleware, async (req, res) => {
   try {
@@ -193,15 +197,40 @@ router.patch("/create-order", authMiddleware, async (req, res) => {
   }
 });
 
+router.get(
+  "/get-all-orders-by-user-id/:id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const buyerId = req.params.id;
+      const orders = await Order.find({ buyer: buyerId })
+        .populate("seller")
+        .populate("product")
+        .populate("buyer")
+        .sort({ createdAt: -1 });
+      res.send({
+        success: true,
+        message: "Orders fetched Successfully",
+        data: orders,
+      });
+    } catch (error) {
+      res.send({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+);
 
-router.get('/get-all-orders-by-user-id/:id',authMiddleware, async (req,res)=>{
+router.post("/add-temp-cart", authMiddleware, async (req, res) => {
   try {
-    const buyerId = req.params.id;
-    const orders = await Order.find({'buyer':buyerId}).populate('seller').populate('product').populate('buyer').sort({createdAt:-1});
+    const { items } = req.body;
+    const response = new TempCart({ items });
+    const result = await response.save();
     res.send({
       success: true,
-      message:'Orders fetched Successfully',
-      data: orders
+      message: "Temp Order Successfully",
+      data: result,
     });
   } catch (error) {
     res.send({
@@ -209,6 +238,42 @@ router.get('/get-all-orders-by-user-id/:id',authMiddleware, async (req,res)=>{
       message: error.message,
     });
   }
-})
+});
+
+router.get("/get-temp-cart-by-id/:id", authMiddleware, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const tempCartArray = await TempCart.findById(id)
+      .populate({ path: "items.product", model: "products" })
+      .populate({ path: "items.seller", model: "users" })
+      .populate({ path: "items.buyer", model: "users" });
+    res.send({
+      success: true,
+      message: "Fetch Successfully!",
+      data: tempCartArray,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+router.delete("/delete-temp-by-id/:id", authMiddleware, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deletetdItem = await TempCart.findByIdAndDelete(id);
+    res.send({
+      success: true,
+      message: "Cart Deleted Successfully!",
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
 module.exports = router;

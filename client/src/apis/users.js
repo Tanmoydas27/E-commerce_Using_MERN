@@ -14,10 +14,7 @@ export const RegisterUser = async (payload) => {
 
 export const LoginUser = async (payload) => {
   try {
-    const response = await axiosinstance.post(
-      `${process.env.REACT_APP_SERVER_URL}/api/users/login`,
-      payload
-    );
+    const response = await axiosinstance.post(`${process.env.REACT_APP_SERVER_URL}/api/users/login`, payload);
     return response.data;
   } catch (error) {
     return error.message;
