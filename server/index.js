@@ -13,8 +13,7 @@ const paymentRoute = require('./routes/paymentRoute.js');
 app.use(bodyParser.json());
 app.use(cors({
     origin: 
-    "https://e-commerce-using-mern-server.vercel.app" 
-    // || "http://localhost:3000"
+    "https://e-commerce-using-mern-six.vercel.app"
     ,
     methods: 'GET, POST, PUT,PATCH, DELETE',
     credentials: true,
