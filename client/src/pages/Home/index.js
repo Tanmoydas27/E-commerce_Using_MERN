@@ -90,6 +90,9 @@ const Home = () => {
                     <button
                       className="buynowhome text-xs mr-6 -mt-2 my-1"
                       onClick={() => buyNow(product._id)}
+                      disabled={
+                        user._id === product.seller._id || user.role === "admin"
+                      }
                     >
                       <i className="ri-shopping-bag-4-line"> </i>Buy Now
                     </button>

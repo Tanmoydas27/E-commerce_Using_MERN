@@ -156,7 +156,9 @@ const ProductDetails = () => {
               </h1>
               <div className="flex justify-between mt-2">
                 <span>Price</span>
-                <span className="mr-6 text-xl font-semibold border border-dashed p-1">RS{' '}{product.price}</span>
+                <span className="mr-6 text-xl font-semibold border border-dashed p-1">
+                  RS {product.price}
+                </span>
               </div>
               <div className="flex justify-between mt-2">
                 <span>Category</span>
@@ -164,19 +166,27 @@ const ProductDetails = () => {
               </div>
               <div className="flex justify-between mt-2">
                 <span>Bill Available</span>
-                <span className="mr-6">{product.billAvailible ? "Yes" : "No"}</span>
+                <span className="mr-6">
+                  {product.billAvailible ? "Yes" : "No"}
+                </span>
               </div>
               <div className="flex justify-between mt-2">
                 <span>Warranty Available</span>
-                <span className="mr-6">{product.warrantyAvailible ? "yes" : "No"}</span>
+                <span className="mr-6">
+                  {product.warrantyAvailible ? "yes" : "No"}
+                </span>
               </div>
               <div className="flex justify-between mt-2">
                 <span>Accessories Available</span>
-                <span className="mr-6">{product.accessoriesAvailible ? "yes" : "No"}</span>
+                <span className="mr-6">
+                  {product.accessoriesAvailible ? "yes" : "No"}
+                </span>
               </div>
               <div className="flex justify-between mt-2">
                 <span>Box Available</span>
-                <span className="mr-6">{product.boxAvailible ? "yes" : "No"}</span>
+                <span className="mr-6">
+                  {product.boxAvailible ? "yes" : "No"}
+                </span>
               </div>
             </div>
             <Divider />
@@ -214,7 +224,6 @@ const ProductDetails = () => {
                         ? "Its your Product"
                         : "Buy Now"}
                     </span>
-                    
                   </Button>
                   <Button
                     onClick={() => {
@@ -235,13 +244,13 @@ const ProductDetails = () => {
           </div>
         </div>
         {showAdditionalForm && (
-        <AdditionalForm
-          setShowAdditionalForm={setShowAdditionalForm}
-          showAdditionalForm={showAdditionalForm}
-          cartItem={cartItem}
-          getData={getData}
-        />
-      )}
+          <AdditionalForm
+            setShowAdditionalForm={setShowAdditionalForm}
+            showAdditionalForm={showAdditionalForm}
+            cartItem={cartItem}
+            getData={getData}
+          />
+        )}
       </div>
     )
   );

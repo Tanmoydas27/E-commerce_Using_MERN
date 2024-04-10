@@ -100,7 +100,7 @@ const AdditionalForm = ({
             showConfirmButton: false,
             timer: 3000,
           }).then(function (req, res) {
-            navigate("/profile/2");
+            navigate("/orders");
           });
         } else {
           throw new Error(result.message);

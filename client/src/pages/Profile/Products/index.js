@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { DeleteProduct, GetProducts } from "../../../apis/products";
 import { SetLoader } from "../../../redux/loadersSlice";
 import moment from "moment";
+import Divider from "../../../components/Divider";
 
 
 
@@ -103,7 +104,15 @@ const Products = () => {
     getData();
   }, []);
   return (
-    <div>
+    <div className="container mx-auto px-4">
+      <div className="flex justify-center ">
+        <h1 className="text-2xl text-center">
+          Product List
+          <Divider/>
+        </h1>
+          
+      </div>
+      
       <div className="flex justify-end ">
         <Button
           type="default"

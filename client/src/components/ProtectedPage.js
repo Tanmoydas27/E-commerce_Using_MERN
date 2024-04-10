@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { GetCurrentUser } from "../apis/users";
-import { message } from "antd";
+import { message, Space, Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { SetLoader } from "../redux/loadersSlice";
 import { SetUser } from "../redux/usersSlice";
 import { useSelector } from "react-redux";
 import Divider from "./Divider";
-// import { GetAllCartsByUserID } from "../apis/products";
+import { DownOutlined, SmileOutlined } from "@ant-design/icons";
+import { GetAllCartsByUserID } from "../apis/products";
 
 const ProtectedPage = ({ children }) => {
-  // const [cartItems, setCartItems] = useState([]);
   const { user } = useSelector((state) => state.users);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // const [cartItems,setCartItems]=useState([]);
 
   const validateToken = async () => {
     try {
@@ -33,39 +35,134 @@ const ProtectedPage = ({ children }) => {
     }
   };
 
+  const items = [
+    {
+      label: <h1 style={{ width: "200px", cursor: "default" }}>My Account</h1>,
+      key: "0",
+    },
+    {
+      type: "divider",
+    },
+    {
+      label: (
+        <a
+          onClick={() => {
+            if (user.role === "user") {
+              navigate("/profile");
+            } else {
+              navigate("/admin");
+            }
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-4 h-4 cursor-pointer text-gray-500 hover:text-gray-800 mr-4"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+            />
+          </svg>
+          Profile
+        </a>
+      ),
+      key: "1",
+    },
+    {
+      label: (
+        <a
+          onClick={() => {
+            navigate("/products");
+          }}
+        >
+          <i class="ri-product-hunt-line text-gray-500 mr-4"></i>
+          Your products
+        </a>
+      ),
+      key: "2",
+    },
+    {
+      label: (
+        <a
+          onClick={() => {
+            localStorage.removeItem("token");
+            navigate("/login");
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="rgba(51, 51, 51)"
+            width="16px"
+            height="16px"
+            className="mr-4"
+          >
+            <path d="M5 22C4.44772 22 4 21.5523 4 21V3C4 2.44772 4.44772 2 5 2H19C19.5523 2 20 2.44772 20 3V6H18V4H6V20H18V18H20V21C20 21.5523 19.5523 22 19 22H5ZM18 16V13H11V11H18V8L23 12L18 16Z"></path>
+          </svg>
+          Logout
+        </a>
+      ),
+      key: "3",
+      danger: true,
+    },
+  ];
   // const getData = async () => {
   //   try {
-  //     console.log(user)
-  //     dispatch(SetLoader(true));
   //     const data = {
   //       buyer: user._id,
   //       status: "pending",
   //     };
   //     const response = await GetAllCartsByUserID(data);
-  //     dispatch(SetLoader(false));
   //     if (response.success) {
+  //       console.log(response.data)
   //       setCartItems(response.data);
+
+  //       // const total = response.data.reduce(
+  //       //   (acc, item) => acc + item.paymentAmount,
+  //       //   0
+  //       // );
+  //       // SetTotal(total);
   //     }
   //   } catch (error) {
-  //     dispatch(SetLoader(false));
   //     message.error(error.message);
   //   }
   // };
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      validateToken();
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = decodeToken(token);
+      const currentTime = Date.now() / 1000;
+      if (decodedToken && decodedToken.exp > currentTime) {
+        validateToken();
+        // getData();
+      } else {
+        message.error("Session expired. Please login again.");
+        navigate("/login");
+      }
     } else {
       message.error("Please Sign in to Continue..");
       navigate("/login");
     }
-    // getData();
   }, []);
+
+  const decodeToken = (token) => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (error) {
+      return null;
+    }
+  };
   return (
     user && (
       <div>
         {/* //Header */}
-        <header className="bg-white fixed top-0 w-full shadow-md p-3">
+        <header className="bg-white fixed top-0 w-full p-2 h-20 ">
           <nav className="container mx-auto px-6 py-3">
             <div className="flex justify-between items-center">
               <h1
@@ -77,108 +174,117 @@ const ProtectedPage = ({ children }) => {
                 {" "}
                 Product Market
               </h1>
-              <div className="bg-slate-300 py-2 px-5 rounded felx gap-2 items-center space-x-2">
-                <div className="inline-flex mr-14 bg-slate-300">
-                  <i
-                    className="ri-shopping-cart-2-line cursor-pointer"
-                    onClick={() => {
-                      navigate("/add-to-cart");
-                    }}
-                  ></i>
+              <div>
+                <div className=" flex justify-between gap-16 font-semibold">
                   <span
-                    class="absolute  rounded-full bg-red-600 w-4 h-4 ml-4  text-white font-mono text-sm  leading-tight text-center cursor-pointer"
+                    className="cursor-pointer"
+                    onClick={() => {
+                      navigate("/");
+                    }}
+                  >
+                    Home
+                  </span>
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => {
+                      navigate("/orders");
+                    }}
+                  >
+                    Orders
+                  </span>
+                  <span className="cursor-pointer">Category</span>
+                  <span className="cursor-pointer">About us</span>
+                </div>
+              </div>
+              <div className="bg-white py-0 pl-5 pr-0 rounded felx gap-2 items-center space-x-2">
+                <div className="inline-flex justify-between">
+                  {user.role === "admin" ? (
+                    <>
+                      <h1 className="text-md mr-6 font-light border border-dashed rounded-3xl p-1  ">
+                        A
+                      </h1>
+                    </>
+                  ) : null}
+                  <Dropdown menu={{ items }} trigger={["click"]}>
+                    <a onClick={(e) => e.preventDefault()}>
+                      <Space>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                          />
+                        </svg>
+                      </Space>
+                    </a>
+                  </Dropdown>
+                  <div className="ml-4  text-gray-600 ">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div
+                    className="ml-4  text-gray-500 hover:text-gray-800 cursor-pointer"
                     onClick={() => {
                       navigate("/add-to-cart");
                     }}
                   >
-                    0
-                  </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                      />
+                    </svg>
+                    <div className="inline-flex ml-2 ">
+                      <span>0</span>
+                    </div>
+                  </div>
                 </div>
-
-                {user.role === "admin" && (
-                  <b>
-                    <span className="mr-2">A</span>
-                  </b>
-                )}
-                <i className="ri-shield-user-line"></i>
-                <span
-                  className=" underline cursor-pointer uppercase"
-                  onClick={() => {
-                    if (user.role === "user") {
-                      navigate("/profile");
-                    } else {
-                      navigate("/admin");
-                    }
-                  }}
-                >
-                  {user.name}
-                </span>
-                <i
-                  className="ri-logout-box-r-line ml-8 cursor-pointer"
-                  onClick={() => {
-                    localStorage.removeItem("token");
-                    navigate("/login");
-                  }}
-                ></i>
               </div>
-              {/* <div className="hidden md:flex items-center space-x-4">
-                <a href="#" className="text-gray-800 hover:text-blue-600">
-                  Home
-                </a>
-                <a href="#" className="text-gray-800 hover:text-blue-600">
-                  About
-                </a>
-                <a href="#" className="text-gray-800 hover:text-blue-600">
-                  Services
-                </a>
-                <a href="#" className="text-gray-800 hover:text-blue-600">
-                  Contact
-                </a>
-                <a
-                  href="#"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md"
-                >
-                  Sign Up
-                </a>
-              </div> */}
-              {/* <div className="md:hidden flex items-center">
-                <button className="text-gray-800 focus:outline-none">
-                  {" "}
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                </button>
-              </div> */}
             </div>
-            {/* <div className="mt-4">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="search"
-                  placeholder="Search"
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-600 w-full"
-                />
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md">
-                  Search
-                </button>
-              </div>
-            </div> */}
           </nav>
+          <Divider />
         </header>
 
-        <Divider />
         {/* Body */}
         <div className="p-5 mt-20"> {children}</div>
+        {/* Footer */}
+        <footer className="bg-zinc-50 text-center dark:bg-neutral-700 lg:text-left mt-4 ">
+          <div className="bg-black/5 p-4 text-center text-surface dark:text-white">
+            {new Date().getFullYear()} © Copyright:
+            <a
+              href="https://tw-elements.com/"
+              style={{ textDecoration: "none", color: "white" }}
+            >
+              {" "}
+              Product Market
+            </a>
+          </div>
+        </footer>
       </div>
     )
   );
