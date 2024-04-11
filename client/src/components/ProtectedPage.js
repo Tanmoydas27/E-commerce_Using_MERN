@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GetCurrentUser } from "../apis/users";
 import { message, Space, Dropdown } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { SetLoader } from "../redux/loadersSlice";
 import { SetUser } from "../redux/usersSlice";
@@ -14,8 +14,13 @@ const ProtectedPage = ({ children }) => {
   const { user } = useSelector((state) => state.users);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const pathname = location.pathname;
   // const [cartItems,setCartItems]=useState([]);
+
+  const isActive = (path) => {
+    return pathname === path ? "active" : "";
+  };
 
   const validateToken = async () => {
     try {
@@ -72,6 +77,19 @@ const ProtectedPage = ({ children }) => {
         </a>
       ),
       key: "1",
+    },
+    {
+      label: (
+        <a
+          onClick={() => {
+            navigate("/orders");
+          }}
+        >
+          <i className="ri-shopping-bag-4-line  text-gray-500 mr-4"></i>
+          Orders
+        </a>
+      ),
+      key: "2",
     },
     {
       label: (
@@ -162,7 +180,7 @@ const ProtectedPage = ({ children }) => {
     user && (
       <div>
         {/* //Header */}
-        <header className="bg-white fixed top-0 w-full p-2 h-20 ">
+        <header className="bg-white fixed top-0 w-full p-2 h-20 left-0 z-50">
           <nav className="container mx-auto px-6 py-3">
             <div className="flex justify-between items-center">
               <h1
@@ -177,7 +195,7 @@ const ProtectedPage = ({ children }) => {
               <div>
                 <div className=" flex justify-between gap-16 font-semibold">
                   <span
-                    className="cursor-pointer"
+                    className={`home-link ${isActive("/")}  `}
                     onClick={() => {
                       navigate("/");
                     }}
@@ -185,15 +203,19 @@ const ProtectedPage = ({ children }) => {
                     Home
                   </span>
                   <span
-                    className="cursor-pointer"
+                    className={`shop-link ${isActive("/shop")}`}
                     onClick={() => {
-                      navigate("/orders");
+                      navigate("/shop");
                     }}
                   >
-                    Orders
+                    Shop
                   </span>
-                  <span className="cursor-pointer">Category</span>
-                  <span className="cursor-pointer">About us</span>
+                  <span className={`category-link ${isActive("/category")}`}>
+                    Category
+                  </span>
+                  <span className={`category-link ${isActive("/about-us")}`}>
+                    About us
+                  </span>
                 </div>
               </div>
               <div className="bg-white py-0 pl-5 pr-0 rounded felx gap-2 items-center space-x-2">
@@ -281,7 +303,7 @@ const ProtectedPage = ({ children }) => {
               style={{ textDecoration: "none", color: "white" }}
             >
               {" "}
-              Product Market
+              Product Market <a href="https://www.github.com/Tanmoydas27" style={{textDecoration:'none', color:'white'}}>{'(Tanmoy Das) '}</a>
             </a>
           </div>
         </footer>

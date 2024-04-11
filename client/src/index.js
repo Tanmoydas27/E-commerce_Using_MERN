@@ -17,6 +17,11 @@ root.render(
             colorPrimaryHover: "#40513B",
             borderRadius: "2px",
           },
+          Carousel:{
+            dotActiveWidth: '24px',
+            dotHeight: '3px',
+            dotWidth: '16px'
+          },
         },
         token: {
           borderRadius: "2px",

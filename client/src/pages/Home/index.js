@@ -62,11 +62,14 @@ const Home = () => {
   }, []);
   return (
     <div>
-      <div className="grid grid-cols-5 gap-6">
+      <div className="grid grid-cols-4 gap-10">
         {products.map((product) => {
           return (
             <>
-              <div className="border border-gray-300 rounded border-solid flex flex-col gap-5 pb-2 cursor-pointer">
+              <div
+                className=" border border-gray-300 hover:border-sky-500 rounded border-solid flex flex-col
+                 gap-5 pb-2 cursor-pointer transition duration-300 ease-in-out hover:scale-110 product-item "
+              >
                 <div
                   key={product._id}
                   onClick={() => navigate(`/product/${product._id}`)}
