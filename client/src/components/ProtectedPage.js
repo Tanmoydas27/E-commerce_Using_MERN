@@ -213,7 +213,11 @@ const ProtectedPage = ({ children }) => {
                   <span className={`category-link ${isActive("/category")}`}>
                     Category
                   </span>
-                  <span className={`category-link ${isActive("/about-us")}`}>
+                  <span className={`category-link ${isActive("/about-us")}`}
+                    onClick={()=>{
+                      navigate('/about-us');
+                    }}
+                  >
                     About us
                   </span>
                 </div>
