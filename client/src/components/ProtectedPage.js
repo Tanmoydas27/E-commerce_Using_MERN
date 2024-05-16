@@ -7,8 +7,7 @@ import { SetLoader } from "../redux/loadersSlice";
 import { SetUser } from "../redux/usersSlice";
 import { useSelector } from "react-redux";
 import Divider from "./Divider";
-import { DownOutlined, SmileOutlined } from "@ant-design/icons";
-import { GetAllCartsByUserID } from "../apis/products";
+import { DownOutlined,SmileOutlined } from "@ant-design/icons";
 
 const ProtectedPage = ({ children }) => {
   const { user } = useSelector((state) => state.users);
@@ -39,6 +38,40 @@ const ProtectedPage = ({ children }) => {
       navigate("/login");
     }
   };
+  const items_category= [
+    {
+      key: '1',
+      label: (
+        <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+          1st menu item
+        </a>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+          2nd menu item (disabled)
+        </a>
+      ),
+      icon: <SmileOutlined />,
+      disabled: true,
+    },
+    {
+      key: '3',
+      label: (
+        <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
+          3rd menu item (disabled)
+        </a>
+      ),
+      disabled: true,
+    },
+    {
+      key: '4',
+      danger: true,
+      label: 'a danger item',
+    },
+  ];
 
   const items = [
     {
@@ -54,8 +87,10 @@ const ProtectedPage = ({ children }) => {
           onClick={() => {
             if (user.role === "user") {
               navigate("/profile");
-            } else {
+            } else if (user.role === "admin") {
               navigate("/admin");
+            } else {
+              navigate("/login");
             }
           }}
         >
@@ -129,6 +164,7 @@ const ProtectedPage = ({ children }) => {
       danger: true,
     },
   ];
+
   // const getData = async () => {
   //   try {
   //     const data = {
@@ -177,9 +213,9 @@ const ProtectedPage = ({ children }) => {
     }
   };
   return (
-    user && (
-      <div>
-        {/* //Header */}
+    <div>
+      {/* //Header */}
+      {user && (
         <header className="bg-white fixed top-0 w-full p-2 h-20 left-0 z-50">
           <nav className="container mx-auto px-6 py-3">
             <div className="flex justify-between items-center">
@@ -211,11 +247,21 @@ const ProtectedPage = ({ children }) => {
                     Shop
                   </span>
                   <span className={`category-link ${isActive("/category")}`}>
-                    Category
+                    {/* <Dropdown menu={{items_category}} className={`category-link ${isActive("/category")}`} > */}
+                      <a
+                        onClick={(e)=>e.preventDefault()}
+                      >
+                        <Space>
+                            Category
+                          {/* <DownOutlined /> */}
+                        </Space>
+                      </a>
+                    {/* </Dropdown> */}
                   </span>
-                  <span className={`category-link ${isActive("/about-us")}`}
-                    onClick={()=>{
-                      navigate('/about-us');
+                  <span
+                    className={`category-link ${isActive("/about-us")}`}
+                    onClick={() => {
+                      navigate("/about-us");
                     }}
                   >
                     About us
@@ -285,9 +331,9 @@ const ProtectedPage = ({ children }) => {
                         d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
                       />
                     </svg>
-                    <div className="inline-flex ml-2 ">
+                    {/* <div className="inline-flex ml-2 ">
                       <span>0</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -295,24 +341,30 @@ const ProtectedPage = ({ children }) => {
           </nav>
           <Divider />
         </header>
+      )}
 
-        {/* Body */}
-        <div className="p-5 mt-20"> {children}</div>
-        {/* Footer */}
-        <footer className="bg-zinc-50 text-center dark:bg-neutral-700 lg:text-left mt-4 ">
-          <div className="bg-black/5 p-4 text-center text-surface dark:text-white">
-            {new Date().getFullYear()} © Copyright:
+      {/* Body */}
+      <div className="p-5 mt-20"> {children}</div>
+      {/* Footer */}
+      <footer className="bg-zinc-50 text-center dark:bg-neutral-700 lg:text-left mt-4 ">
+        <div className="bg-black/5 p-4 text-center text-surface dark:text-white">
+          {new Date().getFullYear()} © Copyright:
+          <a
+            href="https://tw-elements.com/"
+            style={{ textDecoration: "none", color: "white" }}
+          >
+            {" "}
+            Product Market{" "}
             <a
-              href="https://tw-elements.com/"
+              href="https://www.github.com/Tanmoydas27"
               style={{ textDecoration: "none", color: "white" }}
             >
-              {" "}
-              Product Market <a href="https://www.github.com/Tanmoydas27" style={{textDecoration:'none', color:'white'}}>{'(Tanmoy Das) '}</a>
+              {"(Tanmoy Das) "}
             </a>
-          </div>
-        </footer>
-      </div>
-    )
+          </a>
+        </div>
+      </footer>
+    </div>
   );
 };
 

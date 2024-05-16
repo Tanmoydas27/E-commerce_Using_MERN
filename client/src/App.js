@@ -17,10 +17,11 @@ import AboutUs from "./pages/AboutUs/index.js";
 function App() {
   const {loading} = useSelector(state => state.loaders);
   return (
-    <div>
+    <div> 
       {loading && <Loader/>}
       <BrowserRouter>
         <Routes>
+            {/* <Route path="/" element={<HomeDisplay><LandingPage/></HomeDisplay>}/> */}
             <Route path="/" element={<ProtectedPage><LandingPage/></ProtectedPage>}/>
             <Route path="/shop" element={<ProtectedPage><Home/></ProtectedPage>}/>
             <Route path="/about-us" element={<ProtectedPage><AboutUs/></ProtectedPage>}/>
@@ -30,7 +31,7 @@ function App() {
             <Route path="/admin" element={<ProtectedPage><Admin/></ProtectedPage>}/>
             <Route path="/orders" element={<ProtectedPage><Orders/></ProtectedPage>}/>
             <Route path="/products" element={<ProtectedPage><Products/></ProtectedPage>}/>
-            <Route path="/login" element={<Login/>}/>
+            <Route path="/login" element={<ProtectedPage><Login/></ProtectedPage>}/>
             <Route path="/register" element={<Register/>}/>
         </Routes>
       </BrowserRouter>
