@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "client",
   "version": "0.1.0",
   "private": true,
@@ -55,16 +54,4 @@
   "main": "tailwind.config.js",
   "author": "",
   "license": "ISC"
-=======
-  "dependencies": {
-    "@mui/base": "^5.0.0-beta.40",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.0",
-    "crypto-js": "^4.2.0",
-    "razorpay": "^2.9.2",
-    "react-razorpay": "^2.0.1",
-    "tailwind-merge": "^2.2.2",
-    "tailwindcss-animate": "^1.0.7"
-  }
->>>>>>> b14bc173e17802e923b78951ae99a9e95bb203df
 }
