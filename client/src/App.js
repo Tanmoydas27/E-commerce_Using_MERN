@@ -31,7 +31,7 @@ function App() {
             <Route path="/admin" element={<ProtectedPage><Admin/></ProtectedPage>}/>
             <Route path="/orders" element={<ProtectedPage><Orders/></ProtectedPage>}/>
             <Route path="/products" element={<ProtectedPage><Products/></ProtectedPage>}/>
-            <Route path="/login" element={<ProtectedPage><Login/></ProtectedPage>}/>
+            <Route path="/login" element={<Login/>}/>
             <Route path="/register" element={<Register/>}/>
         </Routes>
       </BrowserRouter>
