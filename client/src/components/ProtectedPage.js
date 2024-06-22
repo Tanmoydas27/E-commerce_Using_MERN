@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { GetCurrentUser } from "../apis/users";
 import { message, Space, Dropdown } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SetLoader } from "../redux/loadersSlice";
 import { SetUser } from "../redux/usersSlice";
-import { useSelector } from "react-redux";
 import Divider from "./Divider";
-import { DownOutlined,SmileOutlined } from "@ant-design/icons";
+import { DownOutlined, SmileOutlined } from "@ant-design/icons";
 
 const ProtectedPage = ({ children }) => {
   const { user } = useSelector((state) => state.users);
@@ -15,7 +14,6 @@ const ProtectedPage = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
-  // const [cartItems,setCartItems]=useState([]);
 
   const isActive = (path) => {
     return pathname === path ? "active" : "";
@@ -38,40 +36,32 @@ const ProtectedPage = ({ children }) => {
       navigate("/login");
     }
   };
-  const items_category= [
-    {
-      key: '1',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-          1st menu item
-        </a>
-      ),
-    },
-    {
-      key: '2',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-          2nd menu item (disabled)
-        </a>
-      ),
-      icon: <SmileOutlined />,
-      disabled: true,
-    },
-    {
-      key: '3',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-          3rd menu item (disabled)
-        </a>
-      ),
-      disabled: true,
-    },
-    {
-      key: '4',
-      danger: true,
-      label: 'a danger item',
-    },
-  ];
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = decodeToken(token);
+      const currentTime = Date.now() / 1000;
+      if (decodedToken && decodedToken.exp > currentTime) {
+        validateToken();
+      } else {
+        message.error("Session expired. Please login again.");
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+    } else {
+      message.error("Please Sign in to Continue..");
+      navigate("/login");
+    }
+  }, []);
+
+  const decodeToken = (token) => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (error) {
+      return null;
+    }
+  };
 
   const items = [
     {
@@ -120,7 +110,7 @@ const ProtectedPage = ({ children }) => {
             navigate("/orders");
           }}
         >
-          <i className="ri-shopping-bag-4-line  text-gray-500 mr-4"></i>
+          <i className="ri-shopping-bag-4-line text-gray-500 mr-4"></i>
           Orders
         </a>
       ),
@@ -133,11 +123,11 @@ const ProtectedPage = ({ children }) => {
             navigate("/products");
           }}
         >
-          <i class="ri-product-hunt-line text-gray-500 mr-4"></i>
+          <i className="ri-product-hunt-line text-gray-500 mr-4"></i>
           Your products
         </a>
       ),
-      key: "2",
+      key: "3",
     },
     {
       label: (
@@ -160,210 +150,152 @@ const ProtectedPage = ({ children }) => {
           Logout
         </a>
       ),
-      key: "3",
+      key: "4",
       danger: true,
     },
   ];
 
-  // const getData = async () => {
-  //   try {
-  //     const data = {
-  //       buyer: user._id,
-  //       status: "pending",
-  //     };
-  //     const response = await GetAllCartsByUserID(data);
-  //     if (response.success) {
-  //       console.log(response.data)
-  //       setCartItems(response.data);
-
-  //       // const total = response.data.reduce(
-  //       //   (acc, item) => acc + item.paymentAmount,
-  //       //   0
-  //       // );
-  //       // SetTotal(total);
-  //     }
-  //   } catch (error) {
-  //     message.error(error.message);
-  //   }
-  // };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = decodeToken(token);
-      const currentTime = Date.now() / 1000;
-      if (decodedToken && decodedToken.exp > currentTime) {
-        validateToken();
-        // getData();
-      } else {
-        message.error("Session expired. Please login again.");
-        navigate("/login");
-      }
-    } else {
-      message.error("Please Sign in to Continue..");
-      navigate("/login");
-    }
-  }, []);
-
-  const decodeToken = (token) => {
-    try {
-      return JSON.parse(atob(token.split(".")[1]));
-    } catch (error) {
-      return null;
-    }
-  };
   return (
     <div>
-      {/* //Header */}
       {user && (
-        <header className="bg-white fixed top-0 w-full p-2 h-20 left-0 z-50">
-          <nav className="container mx-auto px-6 py-3">
-            <div className="flex justify-between items-center">
-              <h1
-                className="text-xl text-black cursor-pointer"
-                onClick={() => {
-                  navigate("/");
-                }}
-              >
-                {" "}
-                Product Market
-              </h1>
-              <div>
-                <div className=" flex justify-between gap-16 font-semibold">
-                  <span
-                    className={`home-link ${isActive("/")}  `}
-                    onClick={() => {
-                      navigate("/");
-                    }}
-                  >
-                    Home
-                  </span>
-                  <span
-                    className={`shop-link ${isActive("/shop")}`}
-                    onClick={() => {
-                      navigate("/shop");
-                    }}
-                  >
-                    Shop
-                  </span>
-                  <span className={`category-link ${isActive("/category")}`}>
-                    {/* <Dropdown menu={{items_category}} className={`category-link ${isActive("/category")}`} > */}
-                      <a
-                        onClick={(e)=>e.preventDefault()}
-                      >
+        <>
+          <header className="bg-white fixed top-0 w-full p-2 h-20 left-0 z-50">
+            <nav className="container mx-auto px-6 py-3">
+              <div className="flex justify-between items-center">
+                <h1
+                  className="text-xl text-black cursor-pointer"
+                  onClick={() => {
+                    navigate("/");
+                  }}
+                >
+                  Product Market
+                </h1>
+                <div>
+                  <div className="flex justify-between gap-16 font-semibold">
+                    <span
+                      className={`home-link ${isActive("/")}  `}
+                      onClick={() => {
+                        navigate("/");
+                      }}
+                    >
+                      Home
+                    </span>
+                    <span
+                      className={`shop-link ${isActive("/shop")}`}
+                      onClick={() => {
+                        navigate("/shop");
+                      }}
+                    >
+                      Shop
+                    </span>
+                    <span className={`category-link ${isActive("/category")}`}>
+                      {/* <Dropdown menu={{items_category}} className={`category-link ${isActive("/category")}`} > */}
+                      <a onClick={(e) => e.preventDefault()}>
                         <Space>
-                            Category
+                          Category
                           {/* <DownOutlined /> */}
                         </Space>
                       </a>
-                    {/* </Dropdown> */}
-                  </span>
-                  <span
-                    className={`category-link ${isActive("/about-us")}`}
-                    onClick={() => {
-                      navigate("/about-us");
-                    }}
-                  >
-                    About us
-                  </span>
+                      {/* </Dropdown> */}
+                    </span>
+                    <span
+                      className={`category-link ${isActive("/about-us")}`}
+                      onClick={() => {
+                        navigate("/about-us");
+                      }}
+                    >
+                      About us
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="bg-white py-0 pl-5 pr-0 rounded felx gap-2 items-center space-x-2">
-                <div className="inline-flex justify-between">
-                  {user.role === "admin" ? (
-                    <>
-                      <h1 className="text-md mr-6 font-light border border-dashed rounded-3xl p-1  ">
+                <div className="bg-white py-0 pl-5 pr-0 rounded flex gap-2 items-center space-x-2">
+                  <div className="inline-flex justify-between">
+                    {user.role === "admin" ? (
+                      <h1 className="text-md mr-6 font-light border border-dashed rounded-3xl p-1">
                         A
                       </h1>
-                    </>
-                  ) : null}
-                  <Dropdown menu={{ items }} trigger={["click"]}>
-                    <a onClick={(e) => e.preventDefault()}>
-                      <Space>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth="1.5"
-                          stroke="currentColor"
-                          className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                          />
-                        </svg>
-                      </Space>
-                    </a>
-                  </Dropdown>
-                  <div className="ml-4  text-gray-600 ">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-6 h-6"
+                    ) : null}
+                    <Dropdown menu={{ items }} trigger={["click"]}>
+                      <a onClick={(e) => e.preventDefault()}>
+                        <Space>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="1.5"
+                            stroke="currentColor"
+                            className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                            />
+                          </svg>
+                        </Space>
+                      </a>
+                    </Dropdown>
+                    <div className="ml-4 text-gray-600">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      className="ml-4 text-gray-500 hover:text-gray-800 cursor-pointer"
+                      onClick={() => {
+                        navigate("/add-to-cart");
+                      }}
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div
-                    className="ml-4  text-gray-500 hover:text-gray-800 cursor-pointer"
-                    onClick={() => {
-                      navigate("/add-to-cart");
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                      />
-                    </svg>
-                    {/* <div className="inline-flex ml-2 ">
-                      <span>0</span>
-                    </div> */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                        />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
+            </nav>
+            <Divider />
+          </header>
+          <div className="p-5 mt-20">{children}</div>
+          <footer className="bg-zinc-50 text-center dark:bg-neutral-700 lg:text-left mt-4">
+            <div className="bg-black/5 p-4 text-center text-surface dark:text-white">
+              {new Date().getFullYear()} © Copyright:
+              <a
+                href="https://tw-elements.com/"
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                Product Market
+                <a
+                  href="https://www.github.com/Tanmoydas27"
+                  style={{ textDecoration: "none", color: "white" }}
+                >
+                  {" (Tanmoy Das)"}
+                </a>
+              </a>
             </div>
-          </nav>
-          <Divider />
-        </header>
+          </footer>
+        </>
       )}
-
-      {/* Body */}
-      <div className="p-5 mt-20"> {children}</div>
-      {/* Footer */}
-      <footer className="bg-zinc-50 text-center dark:bg-neutral-700 lg:text-left mt-4 ">
-        <div className="bg-black/5 p-4 text-center text-surface dark:text-white">
-          {new Date().getFullYear()} © Copyright:
-          <a
-            href="https://tw-elements.com/"
-            style={{ textDecoration: "none", color: "white" }}
-          >
-            {" "}
-            Product Market{" "}
-            <a
-              href="https://www.github.com/Tanmoydas27"
-              style={{ textDecoration: "none", color: "white" }}
-            >
-              {"(Tanmoy Das) "}
-            </a>
-          </a>
-        </div>
-      </footer>
     </div>
   );
 };
